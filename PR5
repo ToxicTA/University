@@ -1,0 +1,1148 @@
+using System.Reflection;
+using System.Runtime.CompilerServices;
+[assembly: AssemblyTitle("")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("")]
+[assembly: AssemblyCopyright("")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+[assembly: AssemblyVersion("1.0.*")]
+using System;
+using System.Drawing;
+using System.Collections;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Data;
+using System.Xml;
+using System.Xml.Schema;
+namespace frame
+{
+/// <summary>
+/// Summary description for ConceptModeller.
+/// </summary>
+public class ConceptModeller : System.Windows.Forms.Form
+{
+ private System.Windows.Forms.MainMenu mainMenu1;
+ private System.Windows.Forms.MenuItem menuItem1;
+ private System.Windows.Forms.MenuItem ExitItem;
+ private System.Windows.Forms.MenuItem menuItem3;
+ private System.Windows.Forms.MenuItem menuItem4;
+ private System.Windows.Forms.MenuItem menuItem5;
+ private System.Windows.Forms.MenuItem menuItem6;
+ private System.Windows.Forms.MenuItem menuItem7;
+ private System.Windows.Forms.Panel panel1;
+ private System.Windows.Forms.PictureBox ConceptBox;
+ private System.Windows.Forms.PictureBox VarBox;
+ private System.Windows.Forms.PictureBox aBox;
+ private System.Windows.Forms.PictureBox cBox;
+32
+ private System.Windows.Forms.PictureBox chBox;
+ private System.Windows.Forms.PictureBox dBox;
+ private System.Windows.Forms.PictureBox oBox;
+ private System.Windows.Forms.PictureBox tBox;
+ private System.Windows.Forms.PictureBox vBox;
+ private MenuItem SaveItem;
+ private MenuItem OpenItem;
+ private MenuItem SaveAsItem;
+ private SaveFileDialog saveFileDialog1;
+ private MenuItem NewItem;
+ private OpenFileDialog openFileDialog1;
+ private MenuItem menuItem9;
+ private MenuItem menuItem8;
+ private MenuItem menuItem10;
+ private MenuItem menuItem2;
+ private TextBox textBox1;
+ private Label label1;
+ private Label label2;
+ private TextBox textBox2;
+ private Button button2;
+ private Label label3;
+ private TextBox Ref1;
+ private Label label4;
+ private TextBox Ref2;
+ private IContainer components;
+ ArrayList ElementsArray = new ArrayList();
+public float MouseDownX, MouseDownY, MouseUpX, MouseUpY;
+public int button_on;
+ public string NewElementType;
+ public int EditElementId;
+ private MenuItem menuItem11;
+ public int ElementId=1;
+ public struct ElementData
+ {
+ public int Id;
+ public string Type;
+ public string Name;
+ public int Left, Top, Width, Height;
+ public int Prev, Next;
+ public string Description;
+ }
+ public class Element
+ {
+ private IntPtr parent_hwnd;
+ public ElementData CurrentElement;
+ public Element(IntPtr hwnd, ElementData NewElement)
+ {
+ CurrentElement = NewElement;
+33
+ parent_hwnd = hwnd;
+ Draw();
+ }
+ public void Draw()
+ {
+ System.Drawing.Pen blackPen;
+ blackPen = new System.Drawing.Pen
+(System.Drawing.Color.Black);
+ Graphics newGraphics =
+Graphics.FromHwnd(parent_hwnd);
+
+ if((CurrentElement.Type == "Var")||
+(CurrentElement.Type == "Concept")){
+newGraphics.DrawEllipse(blackPen,
+CurrentElement.Left, CurrentElement.Top,
+ CurrentElement.Width, CurrentElement.Height);
+ newGraphics.DrawString(CurrentElement.Name,
+ new Font("Arial", 10),
+System.Drawing.Brushes.Blue,
+new Point((CurrentElement.Left + 10),
+(CurrentElement.Top +
+CurrentElement.Height/2)));
+ }
+ else if(CurrentElement.Type != "")
+ {
+ double alfa;
+double x1, y1, x2, y2;
+newGraphics.DrawLine(blackPen,
+ CurrentElement.Left, CurrentElement.Top,
+ CurrentElement.Width+CurrentElement.Left),
+ (CurrentElement.Height+CurrentElement.Top));
+ alfa = Math.Atan(double.Parse(CurrentElement.
+Height.ToString()) / double.Parse
+(CurrentElement.Width.ToString()));
+ x1 = -15 * Math.Cos(alfa + 0.3);
+ y1 = -15 * Math.Sin(alfa + 0.3);
+x2 = -15 * Math.Cos(alfa - 0.3);
+ y2 = -15 * Math.Sin(alfa - 0.3);
+ if(CurrentElement.Width<0){
+ x1=-x1; x2=-x2; y1=-y1; y2=-y2;
+ }
+newGraphics.DrawLine(blackPen,
+(CurrentElement.Width + CurrentElement.Left),
+ (CurrentElement.Height + CurrentElement.Top),
+ (CurrentElement.Width + CurrentElement.Left
+ + float.Parse(x1.ToString())),
+ (CurrentElement.Height+CurrentElement.Top
++ float.Parse(y1.ToString())));
+ newGraphics.DrawLine(blackPen,
+(CurrentElement.Width + CurrentElement.Left),
+ (CurrentElement.Height + CurrentElement.Top),
+ (CurrentElement.Width + CurrentElement.Left 
+34
+ + float.Parse(x2.ToString())),
+ (CurrentElement.Height+CurrentElement.Top
++ float.Parse(y2.ToString())));
+ newGraphics.DrawString(CurrentElement.Type,
+ new Font("Arial", 10),
+ System.Drawing.Brushes.Blue,
+ new Point((CurrentElement.Left +
+ CurrentElement.Width/2),
+ (CurrentElement.Top +
+ CurrentElement.Height / 2 - 15)));
+ }
+ newGraphics.Dispose();
+ }
+ }
+ public ConceptModeller()
+{
+InitializeComponent();
+ }
+/// <summary>
+/// Clean up any resources being used.
+/// </summary>
+protected override void Dispose( bool disposing )
+{
+if( disposing )
+{
+if (components != null)
+{
+components.Dispose();
+}
+}
+base.Dispose( disposing );
+}
+#region Windows Form Designer generated code
+/// <summary>
+/// Required method for Designer support - do not modify
+/// the contents of this method with the code editor.
+/// </summary>
+private void InitializeComponent()
+{
+ this.components = new System.ComponentModel.Container();
+ System.ComponentModel.ComponentResourceManager resources
+= new
+System.ComponentModel.ComponentResourceManager(typeof(ConceptModelle
+r));
+ this.mainMenu1 = new 
+35
+System.Windows.Forms.MainMenu(this.components);
+ this.menuItem1 = new System.Windows.Forms.MenuItem();
+ this.NewItem = new System.Windows.Forms.MenuItem();
+ this.menuItem9 = new System.Windows.Forms.MenuItem();
+ this.menuItem8 = new System.Windows.Forms.MenuItem();
+ this.menuItem10 = new System.Windows.Forms.MenuItem();
+ this.menuItem2 = new System.Windows.Forms.MenuItem();
+ this.menuItem3 = new System.Windows.Forms.MenuItem();
+ this.menuItem4 = new System.Windows.Forms.MenuItem();
+ this.menuItem5 = new System.Windows.Forms.MenuItem();
+ this.menuItem6 = new System.Windows.Forms.MenuItem();
+ this.menuItem7 = new System.Windows.Forms.MenuItem();
+ this.panel1 = new System.Windows.Forms.Panel();
+ this.ConceptBox = new
+System.Windows.Forms.PictureBox();
+ this.VarBox = new System.Windows.Forms.PictureBox();
+ this.aBox = new System.Windows.Forms.PictureBox();
+ this.cBox = new System.Windows.Forms.PictureBox();
+ this.chBox = new System.Windows.Forms.PictureBox();
+ this.dBox = new System.Windows.Forms.PictureBox();
+ this.oBox = new System.Windows.Forms.PictureBox();
+ this.tBox = new System.Windows.Forms.PictureBox();
+ this.vBox = new System.Windows.Forms.PictureBox();
+ this.saveFileDialog1 = new
+System.Windows.Forms.SaveFileDialog();
+ this.openFileDialog1 = new
+System.Windows.Forms.OpenFileDialog();
+ this.textBox1 = new System.Windows.Forms.TextBox();
+ this.label1 = new System.Windows.Forms.Label();
+ this.label2 = new System.Windows.Forms.Label();
+ this.textBox2 = new System.Windows.Forms.TextBox();
+ this.button2 = new System.Windows.Forms.Button();
+ this.label3 = new System.Windows.Forms.Label();
+ this.Ref1 = new System.Windows.Forms.TextBox();
+ this.label4 = new System.Windows.Forms.Label();
+ this.Ref2 = new System.Windows.Forms.TextBox();
+ this.menuItem11 = new System.Windows.Forms.MenuItem();
+
+((System.ComponentModel.ISupportInitialize)
+(this.ConceptBox)).BeginInit();
+
+((System.ComponentModel.ISupportInitialize)
+(this.VarBox)).BeginInit();
+ ((System.ComponentModel.ISupportInitialize)
+(this.aBox)).BeginInit();
+
+((System.ComponentModel.ISupportInitialize)
+(this.cBox)).BeginInit();
+
+((System.ComponentModel.ISupportInitialize)
+(this.chBox)).BeginInit();
+36
+
+((System.ComponentModel.ISupportInitialize)
+(this.dBox)).BeginInit();
+
+((System.ComponentModel.ISupportInitialize)
+(this.oBox)).BeginInit();
+
+((System.ComponentModel.ISupportInitialize)
+(this.tBox)).BeginInit();
+((System.ComponentModel.ISupportInitialize)
+(this.vBox)).BeginInit();
+ this.SuspendLayout();
+//
+// mainMenu1
+//
+ this.mainMenu1.MenuItems.AddRange(new
+System.Windows.Forms.MenuItem[] {
+ this.menuItem1,
+ this.menuItem3,
+ this.menuItem4,
+ this.menuItem5});
+ this.mainMenu1.Name = "mainMenu1";
+//
+// menuItem1
+//
+ this.menuItem1.Index = 0;
+ this.menuItem1.MenuItems.AddRange(new
+System.Windows.Forms.MenuItem[] {
+ this.NewItem,
+ this.menuItem9,
+ this.menuItem8,
+ this.menuItem10,
+ this.menuItem2});
+ this.menuItem1.Name = "menuItem1";
+ this.menuItem1.Text = "File";
+ this.menuItem1.Click += new
+System.EventHandler(this.menuItem1_Click);
+//
+// NewItem
+//
+ this.NewItem.Index = 0;
+ this.NewItem.Name = "NewItem";
+ this.NewItem.Text = "New";
+ this.NewItem.Click += new
+System.EventHandler(this.menuItem11_Click);
+//
+// menuItem9
+//
+ this.menuItem9.Index = 1;
+ this.menuItem9.Name = "menuItem9";
+ this.menuItem9.Text = "Open";
+ this.menuItem9.Click += new 
+37
+System.EventHandler(this.menuItem9_Click);
+//
+// menuItem8
+//
+ this.menuItem8.Index = 2;
+ this.menuItem8.Name = "menuItem8";
+ this.menuItem8.Text = "Save";
+ this.menuItem8.Click += new
+System.EventHandler(this.menuItem8_Click);
+//
+// menuItem10
+//
+ this.menuItem10.Index = 3;
+ this.menuItem10.Name = "menuItem10";
+ this.menuItem10.Text = "Save As";
+ this.menuItem10.Click += new
+System.EventHandler(this.menuItem10_Click);
+//
+// menuItem2
+//
+ this.menuItem2.Index = 4;
+ this.menuItem2.Name = "menuItem2";
+ this.menuItem2.Text = "Exit";
+ this.menuItem2.Click += new
+System.EventHandler(this.menuItem2_Click);
+//
+// menuItem3
+//
+ this.menuItem3.Index = 1;
+ this.menuItem3.MenuItems.AddRange(new
+System.Windows.Forms.MenuItem[] {
+ this.menuItem11
+ });
+ this.menuItem3.Name = "menuItem3";
+ this.menuItem3.Text = "Edit";
+//
+// menuItem4
+//
+ this.menuItem4.Index = 2;
+ this.menuItem4.Name = "menuItem4";
+ this.menuItem4.Text = "View";
+//
+// menuItem5
+//
+ this.menuItem5.Index = 3;
+ this.menuItem5.MenuItems.AddRange(new
+System.Windows.Forms.MenuItem[] {
+ this.menuItem6,
+ this.menuItem7
+});
+ this.menuItem5.Name = "menuItem5";
+ this.menuItem5.Text = "Help";
+38
+//
+// menuItem6
+//
+ this.menuItem6.Index = 0;
+ this.menuItem6.Name = "menuItem6";
+ this.menuItem6.Text = "Help";
+//
+// menuItem7
+//
+ this.menuItem7.Index = 1;
+ this.menuItem7.Name = "menuItem7";
+ this.menuItem7.Text = "About";
+//
+// panel1
+//
+ this.panel1.Anchor =
+System.Windows.Forms.AnchorStyles.None;
+ this.panel1.AutoScroll = true;
+ this.panel1.AutoScrollMargin =
+new System.Drawing.Size(800, 600);
+ this.panel1.AutoScrollMinSize =
+new System.Drawing.Size(580, 380);
+ this.panel1.BackColor =
+System.Drawing.Color.Goldenrod;
+ this.panel1.Location =
+new System.Drawing.Point(184, 18);
+ this.panel1.Margin =
+new System.Windows.Forms.Padding(0);
+ this.panel1.Name = "panel1";
+ this.panel1.Size = new System.Drawing.Size(600, 518);
+ this.panel1.TabIndex = 0;
+ this.panel1.MouseUp +=
+new System.Windows.Forms.MouseEventHandler
+(this.panel1_MouseUp);
+ this.panel1.Paint +=
+new System.Windows.Forms.PaintEventHandler
+(this.panel1_Paint);
+ this.panel1.MouseMove +=
+new System.Windows.Forms.MouseEventHandler
+(this.panel1_MouseMove);
+ this.panel1.MouseDown +=
+new System.Windows.Forms.MouseEventHandler
+(this.panel1_MouseDown);
+//
+// ConceptBox
+//
+this.ConceptBox.BackColor =
+System.Drawing.SystemColors.ActiveCaptionText;
+ this.ConceptBox.Image =
+((System.Drawing.Image)
+(resources.GetObject("ConceptBox.Image")));
+ this.ConceptBox.Location = 
+39
+new System.Drawing.Point(8, 16);
+ this.ConceptBox.Name = "ConceptBox";
+ this.ConceptBox.Size = new System.Drawing.Size(136, 56);
+ this.ConceptBox.TabIndex = 1;
+ this.ConceptBox.TabStop = false;
+ this.ConceptBox.Click += new
+System.EventHandler(this.pictureBox1_Click);
+//
+// VarBox
+//
+ this.VarBox.Image =
+((System.Drawing.Image)
+(resources.GetObject("VarBox.Image")));
+ this.VarBox.Location =
+new System.Drawing.Point(8, 80);
+ this.VarBox.Name = "VarBox";
+ this.VarBox.Size = new System.Drawing.Size(136, 56);
+ this.VarBox.TabIndex = 2;
+ this.VarBox.TabStop = false;
+ this.VarBox.Click +=
+new System.EventHandler(this.pictureBox2_Click);
+//
+// aBox
+//
+ this.aBox.Image =
+((System.Drawing.Image)
+(resources.GetObject("aBox.Image")));
+ this.aBox.Location = new System.Drawing.Point(8, 144);
+ this.aBox.Name = "aBox";
+ this.aBox.Size = new System.Drawing.Size(136, 56);
+ this.aBox.TabIndex = 3;
+ this.aBox.TabStop = false;
+ this.aBox.Click += new
+System.EventHandler(this.pictureBox3_Click);
+//
+// cBox
+//
+ this.cBox.Image =
+((System.Drawing.Image)
+(resources.GetObject("cBox.Image")));
+ this.cBox.Location = new System.Drawing.Point(8, 200);
+ this.cBox.Name = "cBox";
+ this.cBox.Size = new System.Drawing.Size(136, 56);
+ this.cBox.TabIndex = 4;
+ this.cBox.TabStop = false;
+ this.cBox.Click +=
+new System.EventHandler(this.pictureBox4_Click);
+//
+// chBox
+//
+ this.chBox.Image =
+((System.Drawing.Image)
+40
+(resources.GetObject("chBox.Image")));
+ this.chBox.Location = new
+System.Drawing.Point(8, 256);
+ this.chBox.Name = "chBox";
+ this.chBox.Size = new System.Drawing.Size(136, 56);
+ this.chBox.TabIndex = 8;
+ this.chBox.TabStop = false;
+ this.chBox.Click += new
+System.EventHandler(this.chBox_Click);
+//
+// dBox
+//
+ this.dBox.Image =
+((System.Drawing.Image)
+(resources.GetObject("dBox.Image")));
+ this.dBox.Location = new System.Drawing.Point(8, 312);
+ this.dBox.Name = "dBox";
+ this.dBox.Size = new System.Drawing.Size(136, 56);
+ this.dBox.TabIndex = 9;
+ this.dBox.TabStop = false;
+ this.dBox.Click +=
+new System.EventHandler(this.dBox_Click);
+//
+// oBox
+//
+ this.oBox.Image =
+((System.Drawing.Image)
+(resources.GetObject("oBox.Image")));
+ this.oBox.Location = new System.Drawing.Point(8, 368);
+ this.oBox.Name = "oBox";
+ this.oBox.Size = new System.Drawing.Size(136, 56);
+ this.oBox.TabIndex = 5;
+ this.oBox.TabStop = false;
+ this.oBox.Click +=
+new System.EventHandler(this.pictureBox7_Click);
+//
+// tBox
+//
+ this.tBox.Image =
+((System.Drawing.Image)
+(resources.GetObject("tBox.Image")));
+ this.tBox.Location = new System.Drawing.Point(8, 424);
+ this.tBox.Name = "tBox";
+ this.tBox.Size = new System.Drawing.Size(136, 56);
+ this.tBox.TabIndex = 10;
+ this.tBox.TabStop = false;
+ this.tBox.Click +=
+new System.EventHandler(this.pictureBox8_Click);
+//
+// vBox
+//
+ this.vBox.Image = 
+41
+((System.Drawing.Image)
+(resources.GetObject("vBox.Image")));
+ this.vBox.Location = new System.Drawing.Point(8, 480);
+ this.vBox.Name = "vBox";
+ this.vBox.Size = new System.Drawing.Size(136, 56);
+ this.vBox.TabIndex = 11;
+ this.vBox.TabStop = false;
+ this.vBox.Click +=
+new System.EventHandler(this.vBox_Click);
+//
+// saveFileDialog1
+//
+ this.saveFileDialog1.FileOk +=
+new System.ComponentModel.CancelEventHandler
+(this.saveFileDialog1_FileOk);
+//
+// textBox1
+//
+ this.textBox1.Anchor =
+System.Windows.Forms.AnchorStyles.None;
+ this.textBox1.Location =
+new System.Drawing.Point(184, 579);
+ this.textBox1.Name = "textBox1";
+ this.textBox1.Size = new System.Drawing.Size(129, 20);
+ this.textBox1.TabIndex = 13;
+ this.textBox1.TextChanged +=
+new System.EventHandler(this.textBox1_TextChanged);
+//
+// label1
+//
+ this.label1.Anchor =
+System.Windows.Forms.AnchorStyles.None;
+ this.label1.AutoSize = true;
+ this.label1.Location =
+new System.Drawing.Point(184, 558);
+ this.label1.Name = "label1";
+ this.label1.Size = new System.Drawing.Size(82, 14);
+ this.label1.TabIndex = 14;
+ this.label1.Text = "Element Name:";
+ this.label1.Click +=
+new System.EventHandler(this.label1_Click);
+//
+// label2
+//
+ this.label2.Anchor =
+System.Windows.Forms.AnchorStyles.None;
+ this.label2.AutoSize = true;
+ this.label2.Location =
+new System.Drawing.Point(336, 558);
+ this.label2.Name = "label2";
+ this.label2.Size = new System.Drawing.Size(109, 14);
+ this.label2.TabIndex = 16;
+42
+ this.label2.Text = "Element Description:";
+ this.label2.Click +=
+new System.EventHandler(this.label1_Click);
+//
+// textBox2
+//
+ this.textBox2.Anchor =
+System.Windows.Forms.AnchorStyles.None;
+ this.textBox2.Location =
+new System.Drawing.Point(336, 579);
+ this.textBox2.Name = "textBox2";
+ this.textBox2.Size = new System.Drawing.Size(129, 20);
+ this.textBox2.TabIndex = 15;
+//
+// button2
+//
+ this.button2.Anchor =
+System.Windows.Forms.AnchorStyles.None;
+ this.button2.Location =
+new System.Drawing.Point(618, 558);
+ this.button2.Name = "button2";
+ this.button2.Size = new System.Drawing.Size(84, 41);
+ this.button2.TabIndex = 17;
+ this.button2.Text = "Update";
+ this.button2.Click +=
+new System.EventHandler(this.button2_Click);
+//
+// label3
+//
+ this.label3.Anchor =
+System.Windows.Forms.AnchorStyles.None;
+ this.label3.AutoSize = true;
+ this.label3.Location =
+new System.Drawing.Point(484, 558);
+ this.label3.Name = "label3";
+ this.label3.Size = new System.Drawing.Size(28, 14);
+ this.label3.TabIndex = 19;
+ this.label3.Text = "Ref1";
+ this.label3.Click += new
+System.EventHandler(this.label1_Click);
+//
+// Ref1
+//
+ this.Ref1.Anchor =
+System.Windows.Forms.AnchorStyles.None;
+ this.Ref1.AutoSize = false;
+ this.Ref1.Location =
+new System.Drawing.Point(483, 579);
+ this.Ref1.Multiline = true;
+ this.Ref1.Name = "Ref1";
+ this.Ref1.Size = new System.Drawing.Size(41, 19);
+ this.Ref1.TabIndex = 18;
+43
+//
+// label4
+//
+ this.label4.Anchor =
+System.Windows.Forms.AnchorStyles.None;
+ this.label4.AutoSize = true;
+ this.label4.Location =
+new System.Drawing.Point(546, 556);
+ this.label4.Name = "label4";
+ this.label4.Size = new System.Drawing.Size(28, 14);
+ this.label4.TabIndex = 21;
+ this.label4.Text = "Ref2";
+ this.label4.Click +=
+new System.EventHandler(this.label1_Click);
+//
+// Ref2
+//
+ this.Ref2.Anchor =
+System.Windows.Forms.AnchorStyles.None;
+ this.Ref2.AutoSize = false;
+ this.Ref2.Location =
+new System.Drawing.Point(546, 577);
+ this.Ref2.Multiline = true;
+ this.Ref2.Name = "Ref2";
+ this.Ref2.Size = new System.Drawing.Size(42, 21);
+ this.Ref2.TabIndex = 20;
+//
+// menuItem11
+//
+ this.menuItem11.Index = 0;
+ this.menuItem11.Name = "menuItem11";
+ this.menuItem11.Text = "Delete";
+ this.menuItem11.Click +=
+new System.EventHandler(this.menuItem11_Click_1);
+//
+// ConceptModeller
+//
+ this.AutoScaleBaseSize =
+new System.Drawing.Size(5, 13);
+ this.ClientSize = new System.Drawing.Size(792, 611);
+ this.Controls.Add(this.label4);
+ this.Controls.Add(this.Ref2);
+ this.Controls.Add(this.label3);
+ this.Controls.Add(this.Ref1);
+ this.Controls.Add(this.button2);
+ this.Controls.Add(this.label2);
+ this.Controls.Add(this.textBox2);
+ this.Controls.Add(this.label1);
+ this.Controls.Add(this.textBox1);
+ this.Controls.Add(this.vBox);
+ this.Controls.Add(this.tBox);
+44
+ this.Controls.Add(this.dBox);
+ this.Controls.Add(this.chBox);
+ this.Controls.Add(this.cBox);
+ this.Controls.Add(this.aBox);
+ this.Controls.Add(this.ConceptBox);
+ this.Controls.Add(this.panel1);
+ this.Controls.Add(this.VarBox);
+ this.Controls.Add(this.oBox);
+ this.Menu = this.mainMenu1;
+ this.Name = "ConceptModeller";
+ this.Text = "ConceptModeller";
+ this.Load +=
+new System.EventHandler(this.ConceptModeller_Load);
+((System.ComponentModel.ISupportInitialize)
+(this.ConceptBox)).EndInit();
+ ((System.ComponentModel.ISupportInitialize)
+(this.VarBox)).EndInit();
+((System.ComponentModel.ISupportInitialize)
+(this.aBox)).EndInit();
+((System.ComponentModel.ISupportInitialize)
+(this.cBox)).EndInit();
+((System.ComponentModel.ISupportInitialize)
+(this.chBox)).EndInit();
+((System.ComponentModel.ISupportInitialize)
+(this.dBox)).EndInit();
+((System.ComponentModel.ISupportInitialize)
+(this.oBox)).EndInit();
+((System.ComponentModel.ISupportInitialize)
+(this.tBox)).EndInit();
+((System.ComponentModel.ISupportInitialize)
+(this.vBox)).EndInit();
+ this.ResumeLayout(false);
+ this.PerformLayout();
+ }
+#endregion
+/// <summary>
+/// The main entry point for the application.
+/// </summary>
+[STAThread]
+static void Main()
+{
+Application.Run(new ConceptModeller());
+}
+private void panel1_Paint (object sender,
+System.Windows.Forms.PaintEventArgs e)
+{
+System.Drawing.Pen blackPen;
+blackPen =
+new System.Drawing.Pen
+45
+(System.Drawing.Color.Black);
+Graphics g = e.Graphics;
+ }
+private void panel1_MouseDown(object sender,
+System.Windows.Forms.MouseEventArgs e)
+{
+MouseDownX = e.X;
+MouseDownY = e.Y;
+ if (NewElementType == "")
+ {
+ if (ElementsArray != null)
+ {
+ int i, select;
+int Left, Top, Width, Height;
+select = 0;
+for (i = 0; i < ElementsArray.Count; i++)
+{
+ if (ElementsArray[i] != null)
+{
+ Left = ((Element)ElementsArray[i]).
+CurrentElement.Left;
+ Top = ((Element)ElementsArray[i]).
+CurrentElement.Top;
+ Width = ((Element)ElementsArray[i]).
+CurrentElement.Width;
+ Height = ((Element)ElementsArray[i]).
+CurrentElement.Height;
+ int x1, y1, x2, y2;
+
+ if (Width < 0)
+ {
+ x1 = Left + Width;
+x2 = Left;
+ }
+else
+{
+ x1 = Left;
+x2 = Left + Width;
+ }
+if (Height < 0)
+ {
+ y1 = Top + Height;
+y2 = Top;
+ }
+else
+{
+ y1 = Top;
+ y2 = Top + Height;
+ }
+if ((x1 < MouseDownX) && 
+(x2 > MouseDownX) &&
+(y1 < MouseDownY) &&
+(y2 > MouseDownY))
+ {
+ textBox1.Text =
+((Element)ElementsArray[i]).
+CurrentElement.Name;
+textBox2.Text =
+((Element)ElementsArray[i]).C
+urrentElement.Description;
+ if (((Element)ElementsArray[i]).
+CurrentElement.Type != "Var")
+{
+ if ((Element)ElementsArray[i])
+.CurrentElement.Type !=
+"Concept")
+ {
+ Ref1.Text =
+ Element)ElementsArray[i]).
+CurrentElement.Prev.
+ToString();
+ Ref2.Text =
+((Element)ElementsArray[i])
+.CurrentElement.Next.
+ToString();
+ }
+ }
+EditElementId =
+((Element)ElementsArray[i]).
+CurrentElement.Id;
+ select = 1;
+break;
+ }
+ }
+ }
+if (select == 0)
+{
+ textBox1.Text = "";
+ textBox2.Text = "";
+EditElementId = 0;
+ }
+ }
+ }
+ }
+ private void panel1_MouseMove
+(object sender, System.Windows.Forms.MouseEventArgs e)
+ {
+ ReDraw();
+ }
+ private void panel1_MouseUp
+(object sender, System.Windows.Forms.MouseEventArgs e)
+{
+ MouseUpX = e.X;
+MouseUpY = e.Y;
+ if((Math.Abs(MouseUpX-MouseDownX)>5)&&
+(Math.Abs(MouseUpY-MouseDownY)>5))
+ {
+ElementData NewElement;
+ NewElement.Id = ElementId;
+ ElementId++;
+ NewElement.Name = "New Element";
+ NewElement.Type = NewElementType;
+ NewElement.Next = 0;
+ NewElement.Prev = 0;
+ NewElement.Description = null;
+ NewElement.Left =
+int.Parse(MouseDownX.ToString());
+ NewElement.Top = int.Parse(MouseDownY.ToString());
+ NewElement.Width = int.Parse
+((MouseUpX - MouseDownX).ToString());
+ NewElement.Height = int.Parse
+((MouseUpY - MouseDownY).ToString());
+ ElementsArray.Add
+(new Element(panel1.Handle, NewElement));
+ reset_images();
+}
+}
+public void reset_images()
+{
+ NewElementType = "";
+ ConceptBox.Image =
+System.Drawing.Image.FromFile
+("D:\\frame\\img\\concept.gif");
+ VarBox.Image =
+System.Drawing.Image.FromFile
+("D:\\frame\\img\\var.gif");
+ aBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\a.gif");
+ cBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\c.gif");
+ chBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\ch.gif");
+ dBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\d.gif");
+ oBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\o.gif");
+ tBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\t.gif");
+ vBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\v.gif");
+ }
+private void pictureBox1_Click
+(object sender, System.EventArgs e)
+{
+ reset_images();
+ ConceptBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\concept_on.gif");
+ NewElementType = "Concept";
+ }
+private void pictureBox2_Click
+(object sender, System.EventArgs e)
+{
+reset_images();
+VarBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\var_on.gif");
+ NewElementType = "Var";
+ }
+private void pictureBox3_Click
+(object sender, System.EventArgs e)
+{
+reset_images();
+aBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\a_on.gif");
+ NewElementType = "a";
+ }
+private void pictureBox4_Click
+(object sender, System.EventArgs e)
+{
+reset_images();
+cBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\c_on.gif");
+ NewElementType = "c";
+ }
+private void menuItem2_Click
+(object sender, System.EventArgs e)
+{
+Application.Exit();
+}
+private void pictureBox5_Click
+(object sender, System.EventArgs e)
+{
+ reset_images();
+ chBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\ch_on.gif");
+ NewElementType = "ch";
+ }
+private void button1_Click
+(object sender, System.EventArgs e)
+{
+
+}
+private void pictureBox8_Click
+(object sender, System.EventArgs e)
+{
+ reset_images();
+ tBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\t_on.gif");
+ NewElementType = "t";
+ }
+ private void menuItem8_Click(object sender, EventArgs e)
+ {
+ string SchemaFileName = "frameschema.xsd";
+ string XMLFileName = "framedb.xml";
+ saveFileDialog1.ShowDialog();
+ XMLFileName = saveFileDialog1.FileName;
+ DataSet _dsForSave = new DataSet();
+ _dsForSave.ReadXmlSchema(SchemaFileName);
+ int i, Width, Height, Top, Left, Next, Prev, Id;
+ string Name, Type, Description;
+ for (i = 0; i < ElementsArray.Count; i++)
+ {
+ if (ElementsArray[i] != null)
+ {
+ Id = ((Element)ElementsArray[i]).
+CurrentElement.Id;
+ Type = ((Element)ElementsArray[i]).
+CurrentElement.Type;
+ Name = ((Element)ElementsArray[i]).
+CurrentElement.Name;
+ Left = ((Element)ElementsArray[i]).
+CurrentElement.Left;
+ Top = ((Element)ElementsArray[i]).
+CurrentElement.Top;
+ Width = ((Element)ElementsArray[i]).
+CurrentElement.Width;
+ Height = ((Element)ElementsArray[i]).
+CurrentElement.Height;
+ Prev = ((Element)ElementsArray[i]).
+CurrentElement.Prev;
+ Next = ((Element)ElementsArray[i]).
+CurrentElement.Next;
+ Description = ((Element)ElementsArray[i]).
+CurrentElement.Description;
+ _dsForSave.Tables["Elements"].Rows.Add
+(Id, Type, Name, Left, Top, Width, Height, 
+Prev, Next, Description);
+ }
+ }
+ _dsForSave.WriteXml(XMLFileName);
+ }
+ private void saveFileDialog1_FileOk
+(object sender, CancelEventArgs e)
+ {
+
+ }
+ private void pictureBox7_Click(object sender, EventArgs e)
+ {
+ reset_images();
+ oBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\o_on.gif");
+ NewElementType = "o";
+ }
+ private void ConceptModeller_Load
+(object sender, EventArgs e)
+ {
+
+ }
+ private void dBox_Click(object sender, EventArgs e)
+ {
+ reset_images();
+ dBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\d_on.gif");
+ NewElementType = "d";
+ }
+ private void vBox_Click(object sender, EventArgs e)
+ {
+ reset_images();
+ vBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\v_on.gif");
+ NewElementType = "v";
+ }
+ private void chBox_Click(object sender, EventArgs e)
+ {
+ reset_images();
+ chBox.Image = System.Drawing.Image.FromFile
+("D:\\frame\\img\\ch_on.gif");
+ NewElementType = "ch";
+ }
+ private void button1_Click_1(object sender, EventArgs e)
+ {
+ if (ElementsArray != null)
+ {
+ int i;
+ for (i = 0; i < ElementsArray.Count; i++)
+ ((Element)ElementsArray[i]).Draw();
+ }
+ }
+ private void ReDraw()
+ {
+ panel1.Refresh();
+
+ int i;
+ for (i = 0; i < ElementsArray.Count; i++)
+ {
+ if (ElementsArray[i] != null)
+{
+ ((Element)ElementsArray[i]).Draw();
+ }
+ }
+ }
+ private void menuItem1_Click(object sender, EventArgs e)
+ {
+
+ }
+ private void menuItem9_Click(object sender, EventArgs e)
+ {
+ string SchemaFileName = "frameschema.xsd";
+ string XMLFileName = "framedb.xml";
+ openFileDialog1.ShowDialog();
+ XMLFileName = openFileDialog1.FileName;
+ DataSet _dsForOpen = new DataSet();
+ _dsForOpen.ReadXmlSchema(SchemaFileName);
+ _dsForOpen.ReadXml(XMLFileName);
+ ElementData CurrentElement;
+ //string Name, Type, Description;
+ int i;
+ for (i = 0;
+i < _dsForOpen.Tables["Elements"].Rows.Count; i++)
+ {
+ CurrentElement.Id = int.Parse(_dsForOpen.
+Tables["Elements"].Rows[i].ItemArray[0].ToString());
+
+ CurrentElement.Type = _dsForOpen.Tables["Elements"].
+Rows[i].ItemArray[1].ToString();
+ CurrentElement.Name = _dsForOpen.Tables["Elements"].
+Rows[i].ItemArray[2].ToString();
+ CurrentElement.Left = int.Parse(_dsForOpen.
+Tables["Elements"].Rows[i].ItemArray[3].ToString());
+ CurrentElement.Top = int.Parse(_dsForOpen.
+Tables["Elements"].Rows[i].ItemArray[4].ToString());
+ CurrentElement.Width = int.Parse(_dsForOpen.
+Tables["Elements"].Rows[i].ItemArray[5].ToString());
+ CurrentElement.Height = int.Parse(_dsForOpen.
+Tables["Elements"].Rows[i].ItemArray[6].ToString());
+ CurrentElement.Next = int.Parse(_dsForOpen.
+Tables["Elements"].Rows[i].ItemArray[7].ToString());
+ CurrentElement.Prev = int.Parse(_dsForOpen.
+Tables["Elements"].Rows[i].ItemArray[8].ToString());
+ CurrentElement.Description = _dsForOpen.
+Tables["Elements"].Rows[i].ItemArray[9].ToString();
+ ElementsArray.Add(new Element
+(panel1.Handle, CurrentElement));
+ }
+ }
+ private void menuItem10_Click(object sender, EventArgs e)
+ {
+
+ }
+ private void menuItem11_Click(object sender, EventArgs e)
+ {
+ int i;
+ for (i = 0; i < ElementsArray.Count; i++)
+ {
+ ElementsArray[i] = null;
+ }
+ EditElementId = 0;
+ ElementId = 1;
+ ReDraw();
+ }
+ private void label1_Click(object sender, EventArgs e)
+ {
+
+ }
+ private int get_i_by_id(int id)
+ {
+ int i;
+ for (i = 0; i < ElementsArray.Count; i++)
+ {
+ if (ElementsArray[i] != null)
+ {
+ if (((Element)ElementsArray[i]).
+CurrentElement.Id == id)
+ break;
+ }
+ }
+ return i;
+ }
+53
+ private void button2_Click(object sender, EventArgs e)
+ {
+ int i;
+ i = get_i_by_id(EditElementId);
+ ((Element)ElementsArray[i]).CurrentElement.Name
+= textBox1.Text;
+ ((Element)ElementsArray[i]).CurrentElement.Description
+ = textBox2.Text;
+ ((Element)ElementsArray[i]).CurrentElement.Prev
+= int.Parse(Ref1.Text);
+ ((Element)ElementsArray[i]).CurrentElement.Next
+= int.Parse(Ref2.Text);
+ ReDraw();
+ }
+ private void textBox1_TextChanged(object sender,EventArgs e)
+ {
+
+ }
+ private void menuItem11_Click_1(object sender, EventArgs e)
+ {
+ if (EditElementId != 0)
+ {
+ int i;
+ for (i = 0; i < ElementsArray.Count; i++)
+ {
+ if (ElementsArray[i] != null)
+{
+ if (((Element)ElementsArray[i]).
+CurrentElement.Id == EditElementId)
+ {
+ int j;
+for (j = i;
+j < (ElementsArray.Count - 1); j++)
+ {
+ ElementsArray[j] =
+ElementsArray[j + 1];
+ }
+ElementsArray[j] = null;
+break;
+ }
+ }
+ }
+ ReDraw();
+ }
+ }
+ }
+}
