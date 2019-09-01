@@ -1,0 +1,397 @@
+#!/usr/bin/perl
+use DBI;
+use CGI;
+use LWP;
+use Time::Local;
+require("../nsm/lcat");
+require("../nsm/subs");
+require("../nsm/serv");
+require("../nsm/menu1");
+my $num_of_articles = 2;
+my $num_of_news = 2;
+my $num_of_smi = 2;
+my $num_of_images = 3;
+my $images_tabble = "IMAGES";
+$rq = new CGI;
+# $tid - ID страницы (левое меню)
+# $cid - ID раздела (верхнее меню)
+my $flag = 0;
+my($name,$cid,$tid,$type,$prop) = (split(/\//,$ENV{"PATH_INFO"}))[1,2,3,4,5];
+if(($cid =~ /\d/) && ($tid =~ /\d/) && (!$type) && (!$prop))
+{
+ $page = &getcolumn("RUBRICATOR","NODE_ID",$tid);
+ $filename = &getcolumn("PAGES","TEMPLATE",$page);
+}
+$name ||= "index";
+$nid = $tid; # для новостей
+$cid = $tid if $cid eq "";
+# Расчет cid, т.е. ID рубрики верхнего уровня...
+if($cid =~ /\D/)
+{
+ if(!(($pid) = &execsql("select ID from PAGES where ALIAS = '$cid'"))) # Значит
+в страницах нету с таким алиасом
+ {
+ if(!(($tid) = &execsql("select ID from RUBRICATOR where NODE_ALIAS =
+'$cid'"))) # В рубрикаторе нет меню с таким алиасом # Следовательно – страница без
+привязки – загружается default меню и т.д.
+ {
+ $PARAM_0 = qq~<img src="/img/search_01.jpg" width="280" height="80"
+border="0" align="texttop" alt="Дополнительно" ondrag="return false;">~;
+ $PARAM_1 = qq~Поиск~;
+ $PARAM_2 = qq~ bgcolor="#777788"~;
+ $free_page = 1;
+ if(($cid eq "news")&&(!$type)){$type = 2;}
+ elsif(($cid eq "articles")&&(!$type)){$type = 5;}
+ elsif(($cid eq "map")&&(!$type)){$type = 7;}
+ elsif(($cid eq "links_cat")&&(!$type)){$type = 8;}
+ elsif(($cid eq "pictures")&&(!$type)){$type = 9;}
+ elsif(($cid eq "smi")&&(!$type)){$type = 12;}
+ elsif(($cid eq "licenses")&&(!$type)){$type = 19;}
+ elsif(($cid eq "post")&&(!$type)){$type = 21;}
+ elsif(($cid eq "arcsmi")&&(!$type)){$type = 23;}
+ elsif(($cid eq "arcarticles")&&(!$type)){$type = 26;}
+ }
+8
+ else # В рубрикаторе нашлось соответствующее меню...
+ {
+ $cid = &get_level($tid,0);
+ ($node, $node_type, $nodealias) = &execsql("select NODE_ID, NODE_TYPE,
+NODE_ALIAS from RUBRICATOR where ID = '$tid'");
+ ($PARAM_0, $PARAM_1, $PARAM_2, $PARAM_3, $PARAM_4, $PARAM_5, $PARAM_6,
+$PARAM_7, $PARAM_8, $PARAM_9) = getcolumn($DBName.".TYPES","PARAM_0, PARAM_1,
+PARAM_2, PARAM_3, PARAM_4, PARAM_5, PARAM_6, PARAM_7, PARAM_8,
+PARAM_9",$node_type);
+ $tid = &get_level($tid,1);
+ $topmenu = &topmenu($cid); #(page id, template, current id, classname)
+ ($childmenu, $_openid) =
+&menu($cid,"leftmenu",$tid,"menu/leftmenu_outer");
+ }
+ }
+ else # Среди страниц нашлась соответствующая
+ {
+ ($tid) = &execsql("select ID, NODE_TYPE from RUBRICATOR where NODE_ID =
+'$pid' and PARENT_ID != '0'"); # Меню для этой страницы
+ ($tid) ||= &execsql("select ID, NODE_TYPE from RUBRICATOR where NODE_ID =
+'$pid'"); # Меню для этой страницы
+ ($cid) = &execsql("select PARENT_ID from RUBRICATOR where ID = '$tid'") if
+$tid>=0; # Меню для этой страницы
+ ($node, $node_type, $nodealias) = &execsql("select NODE_ID, NODE_TYPE,
+NODE_ALIAS from RUBRICATOR where ID = '$tid'");
+ ($PARAM_0, $PARAM_1, $PARAM_2, $PARAM_3, $PARAM_4, $PARAM_5, $PARAM_6,
+$PARAM_7, $PARAM_8, $PARAM_9) = getcolumn($DBName.".TYPES","PARAM_0, PARAM_1,
+PARAM_2, PARAM_3, PARAM_4, PARAM_5, PARAM_6, PARAM_7, PARAM_8,
+PARAM_9",$node_type);
+ $topmenu = &topmenu($cid); #(page id, template, current id, classname)
+ $childmenu = &menu($cid,"leftmenu",$tid,"menu/leftmenu_outer",$tid);
+ }
+}
+################################# #################################
+################################# #############################
+if($cid eq "")
+{
+ ($pid) = &execsql("select ID from PAGES where ALIAS = 'default'"); # Страница
+по умолчанию
+ $defaultnode = $pid;
+ if($pid)
+ {
+ $defaultnode = $pid;
+ my $template = "masterpages/".&getcolumn("PAGES","TEMPLATE",$pid);
+ $name = $template;
+ $name =~ s/\/$//g;
+ }
+ ($cid) = &execsql("select ID from RUBRICATOR where NODE_ID = '$pid'"); # Меню
+для этой страницы
+ if(!$cid && $pid)
+ {
+ $topmenu = &topmenu(0); #(page id, template, current id, classname)
+ $childmenu = &menu(0,"leftmenu",0,"menu/leftmenu_outer",$tid);
+ my $template = "masterpages/".&getcolumn("PAGES","TEMPLATE",$pid);
+ $name = $template;
+ $name =~ s/\/$//g;
+ ($text,$_name) = &text($pid); #(page)
+ #########################
+ $node ||= $defaultnode;
+ #########################
+9
+ $case_node = $node;
+$case_node ||= $nid;
+ $text =~ s/\[:cid\]/$cid/g;
+ $text =~ s/\[&alert\]/&alert()/eg;
+ $text =~
+s/\[&random_images\]/&random_images($num_of_images,$images_tabble)/eg;
+ $text =~ s/\[&case_images\]/&case_images($case_node,
+$num_of_images,$images_tabble)/eg;
+ $text =~ s/\[&articles\]/&articles("PAGES","articles",2,"_articles")/eg;
+ $text =~ s/\[&news\]/&news("PAGES","news",3,"_news")/eg;
+ $text =~ s/\[&smi\]/&smi("PAGES","smi",$num_of_smi,"_smi")/eg;
+ $text =~ s/\[&announces\]/&announces("PAGES","announces",2)/eg;
+ $text =~ s/\[:(\w+)\]/${$1}/g;
+ $flag = 1;
+ }
+}
+# Вслучае, когда нашлись ID
+if($cid ne "")
+{
+ $id = $tid;
+ $id ||= $cid;
+ if($cid =~ /\d/)
+ {
+ $name = "masterpages/".&getcolumn("PAGES","TEMPLATE",$node) if $node;
+ $topmenu_cid = &get_level($cid,0);
+ $leftmenu_cid = &get_level($id,1);
+ $topmenu = &topmenu($topmenu_cid); #(page id, template, current id,
+classname)
+ $childmenu = &menu($topmenu_cid,"leftmenu",$leftmenu_cid, "",$tid);
+ if(!$nodealias)
+ {
+ ($node, $node_type, $nodealias) = &execsql("select NODE_ID, NODE_TYPE,
+NODE_ALIAS from RUBRICATOR where ID = '$id'");
+ ($PARAM_0, $PARAM_1, $PARAM_2, $PARAM_3, $PARAM_4, $PARAM_5, $PARAM_6,
+$PARAM_7, $PARAM_8, $PARAM_9) = getcolumn($DBName.".TYPES","PARAM_0, PARAM_1,
+PARAM_2, PARAM_3, PARAM_4, PARAM_5, PARAM_6, PARAM_7, PARAM_8,
+PARAM_9",$node_type);
+ }
+ }
+ if($nodealias)
+ {
+ if(($nodealias eq "news")&&(!$type)){$type = 2;}
+ elsif(($nodealias eq "articles")&&(!$type)){$type = 5;}
+ elsif(($nodealias eq "map")&&(!$type)){$type = 7;}
+ elsif(($nodealias eq "links_cat")&&(!$type)){$type = 8;}
+ elsif(($nodealias eq "pictures")&&(!$type)){$type = 9;}
+ elsif(($nodealias eq "licenses")&&(!$type)){$type = 19;}
+ elsif(($nodealias eq "smi")&&(!$type)){$type = 12;}
+ elsif(($nodealias eq "post")&&(!$type)){$type = 21;}
+ elsif(($nodealias eq "arcsmi")&&(!$type)){$type = 23;}
+ elsif(($nodealias eq "arcarticles")&&(!$type)){$type = 26;}
+ # .............. и т.д.
+ }
+ if($type == 1)
+ {
+ $text = &news("PAGES","news",$num_of_news,$tid); #(page)
+ $text =~ s/\[:cid\]/$cid/g;
+ }
+ elsif($type == 2)
+ {
+ ($text,$_name) = &news("PAGES","news",9999999,"","anews"); #(page)
+ $text =~ s/\[:cid\]/$cid/g;
+ }
+10
+ elsif($type == 3)
+ {
+ ($text,$_name) = &news("PAGES","news",1,$nid); #(page)
+ $text =~ s/\[:cid\]/$nid/g;
+ }
+ elsif($type == 4)
+ {
+ $text = &articles("PAGES","articles",$num_of_articles,$nid); #(page)
+ $text =~ s/\[:cid\]/$cid/g;
+ }
+ elsif($type == 5)
+ {
+ ($text,$_name) = &articles("PAGES","articles",9999999,"","aarticles");
+#(page)
+ $text =~ s/\[:cid\]/$cid/g;
+ }
+ elsif($type == 6)
+ {
+ ($text,$_name) = &articles("PAGES","articles",1,$nid); #(page)
+ $text =~ s/\[:cid\]/$nid/g;
+ }
+ elsif($type == 7) # Карта сайта !!!
+ {
+ $search = openhtml("search/index");
+ $topmenu = &topmenu(0); #(page id, template, current id, classname)
+ if($search_line = $rq->param("keywords"))
+ {
+ ($text, $num) = &search_results("$search_line");
+ if(!$num){$_name = $string{'0016'};}
+ else{$_name = $string{'0010'}." ($num стр.)";}
+ }
+ else
+ {
+ $text = &treelist(); #(page)
+ $search = &openhtml("search/index");
+ $_name = $string{'0006'};
+ }
+ $search =~ s/\[:keywords\]/$search_line/g;
+ $text =~ s/\[:cid\]/$nid/g;
+ }
+ elsif($type == 8) # Каталог ресурсов
+ {
+ $text = &openhtml("links_cat/index");
+ ($cat) = &cattreelist("links_cat"); #(page)
+ $text =~ s/\[:text\]/$cat/g;
+ $text =~ s/\[:cid\]/$nid/g;
+ $_name = $string{'0012'};
+ }
+ elsif($type == 9)# Обои (заголовки)
+ {
+ $text = collect_pictures();
+ $_name = $string{'0014'};
+ $text =~ s/\[:cid\]/$nid/g;
+ }
+ elsif($type == 10)# Обои (внутри)
+ {
+ $text = collect_pictures($nid, $prop);
+ $_name = $string{'0014'};
+ }
+ elsif($type == 11)
+ {
+ $text = &smi("PAGES","smi",$num_of_smi,$tid); #(page)
+ $text =~ s/\[:cid\]/$cid/g;
+11
+ }
+ elsif($type == 12)
+ {
+ ($text,$_name) = &smi("PAGES","smi",9999999,"","asmi"); #(page)
+ $text =~ s/\[:cid\]/$cid/g;
+ }
+ elsif($type == 13)
+ {
+ ($text,$_name) = &smi("PAGES","smi",1,$nid); #(page)
+ $text =~ s/\[:cid\]/$nid/g;
+ }
+ elsif($type == 19)# Обои (заголовки)
+ {
+ $text = collect_licenses();
+ $_name = $string{'0015'};
+ $text =~ s/\[:cid\]/$nid/g;
+ }
+ elsif($type == 20)# Обои (внутри)
+ {
+ $text = collect_licenses($nid, $prop);
+ $_name = $string{'0015'};
+ }
+ elsif($type == 21)# Почта
+ {
+#prnerror($prop);
+ $text = post_form($prop);
+ $_name = $string{'0019'};
+ $text =~ s/\[:cid\]/$nid/g;
+ }
+ elsif($type == 22)
+ {
+ $text = &arcsmi("PAGES","arcsmi",$num_of_smi,$tid); #(page)
+ $text =~ s/\[:cid\]/$cid/g;
+ }
+ elsif($type == 23)
+ {
+ ($text,$_name) = &arcsmi("PAGES","arcsmi",9999999,"","asmi"); #(page)
+ $text =~ s/\[:cid\]/$cid/g;
+ }
+ elsif($type == 24)
+ {
+ ($text,$_name) = &arcsmi("PAGES","arcsmi",1,$nid); #(page)
+ $text =~ s/\[:cid\]/$nid/g;
+ }
+ elsif($type == 25)
+ {
+ $text = &arcarticles("PAGES","arcarticles",$num_of_articles,$nid); #(page)
+ $text =~ s/\[:cid\]/$cid/g;
+ }
+ elsif($type == 26)
+ {
+ ($text,$_name) =
+&arcarticles("PAGES","arcarticles",9999999,"","aarticles"); #(page)
+ $text =~ s/\[:cid\]/$cid/g;
+ }
+ elsif($type == 27)
+ {
+ ($text,$_name) = &arcarticles("PAGES","arcarticles",1,$nid); #(page)
+ $text =~ s/\[:cid\]/$nid/g;
+ }
+ else
+12
+ {
+ $filename = &getcolumn("PAGES","TEMPLATE","\"$node\"") if $filename eq "";
+ if($filename)
+ {
+ $template = "masterpages/".$filename;
+ $template =~ s/\/$//g;
+ }
+ elsif($name && $filename eq "")
+ {
+ $template = "masterpages/".$name;
+ $template =~ s/\/$//g;
+ }
+ else
+ {
+ $template = "masterpages/";
+ }
+ ($text,$_name) = &text($node); #(page)
+ $text =~ s/\[:cid\]/$cid/g;
+ }
+ $case_node = $node;
+$case_node ||= $nid;
+ $text =~ s/\[&alert\]/&alert()/eg;
+ $text =~
+s/\[&random_images\]/&random_images($num_of_images,$images_tabble)/eg;
+ $text =~ s/\[&case_images\]/&case_images($case_node,
+$num_of_images,$images_tabble)/eg;
+ $text =~
+s/\[&articles\]/&articles("PAGES","articles",$num_of_articles,"_articles")/eg;
+ $text =~ s/\[&news\]/&news("PAGES","news",$num_of_news,"_news")/eg;
+ $text =~ s/\[&smi\]/&smi("PAGES","smi",$num_of_smi,"_smi")/eg;
+ $text =~ s/\[&announces\]/&announces("PAGES","announces",2)/eg;
+ $text =~ s/\[:(\w+)\]/${$1}/g;
+}
+elsif(!$flag)
+{
+ prnerror("Error 1.","Uuups.... There is nо default page! \$name = $name, \$cid
+= $cid, \$tid = $tid, \$type = $type. \Sflag = $flag");
+}
+$name =~ s/\./\//g;
+$name =~ s/masterpages\///g;
+if($template eq "")
+{
+ $template = "masterpages/$name" if $name ne "";
+ $template ||= "masterpages/index";
+}
+if(open(F,"../nsh/$template"))
+{
+ close(F);
+ $correct = 1;
+}
+#prnerror($template);
+if($correct == 1)
+{
+$html = openhtml($template);
+}
+else
+{
+$html = openhtml("../nsh/masterpages/index");
+}
+#prnerror($html);
+$html =~ s/\[:cid\]/$cid/g;
+13
+$html =~ s/\[&alert\]/&alert()/eg;
+if($html =~ /\[&news\]/)
+{
+ ($news) = &news("PAGES","news",$num_of_news,"_news");
+ $html =~ s/\[&news\]/$news/g;
+}
+if($html =~ /\[&smi\]/)
+{
+ ($smi) = &smi("PAGES","smi",$num_of_smi,"_smi");
+ $html =~ s/\[&smi\]/$smi/g;
+}
+if($html =~ /\[&articles\]/)
+{
+ ($articles) = &articles("PAGES","articles",$num_of_articles,"_articles");
+ $html =~ s/\[&articles\]/$articles/eg;
+}
+$html =~ s/\[&xkey\]/&xkey/eg;
+$html =~ s/\[&random_images\]/&random_images($num_of_images,$images_tabble)/eg;
+$html =~ s/\[&case_images\]/&case_images($case_node,
+$num_of_images,$images_tabble)/eg;
+$html =~ s/\[:nid\]/$nid/g;
+$html =~ s/\[&announces\]/&announces("PAGES","announces",2)/eg;
+$html =~ s/\[:header]/$_name/g;
+$html =~ s/\[:(\w+)\]/${$1}/g;
+$html =~ s/\[String:(\w+)\]/$string{$1}/g;
+$html =~ s/http:\/\/show.itera.ru\//\//g;
+$html =~ s/http:\/\/edit.itera.ru\//\//g;
+$html =~ s/http:\/\/10.1.0.9:8020\//\//g;
+print "Content-type: text/html\n\n";
+print "$html";
