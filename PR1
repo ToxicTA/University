@@ -1,0 +1,76 @@
+//Language: XML
+<?xml version="1.0" standalone="yes" ?>
+- <frames:frameset xmlns:frames="http://www.mysolutions.ru./MyFrames">
+- <concepts>
+- <concept id="2316095378">
+<name>Class 1</name>
+<description>Just a sample class.</description>
+</concept>
+- <concept id="1062349237">
+<name>Class 2</name>
+<description>A second sample class.</description>
+</concept>
+</concepts>
+- <relations>
+- <relation id="0123642342" type="IsA">
+<originator>1062349237</originator>
+<target>2316095378</target>
+</relation>
+</relations>
+- <diagrams>
+- <diagram id="1349813624">
+- <concept id="1231231423" conceptId="2316095378">
+- <location>
+<x>8</x>
+<y>8</y>
+</location>
+- <size>
+<width>128</width>
+<height>24</height>
+</size>
+<color>#ffbf00</color>
+</concept>
+- <concept id="1231231445" conceptId="1062349237">
+- <location>
+<x>8</x>
+<y>48</y>
+</location>
+- <size>
+<width>128</width>
+<height>24</height>
+</size>
+<color>#00bfff</color>
+</concept>
+- <relation id="0123642342" relationId="3241963481">
+- <start>
+<x>72</x>
+<y>32</y>
+</start>
+- <end>
+<x>72</x>
+4
+<y>48</y>
+</end>
+- <edges>
+- <edge>
+<x>72</x>
+<y>36</y>
+</edge>
+- <edge>
+<x>60</x>
+<y>36</y>
+</edge>
+- <edge>
+<x>60</x>
+<y>44</y>
+</edge>
+- <edge>
+<x>72</x>
+<y>44</y>
+</edge>
+</edges>
+<color>#0000ff</color>
+</relation>
+</diagram>
+</diagrams>
+</frames:frameset>
