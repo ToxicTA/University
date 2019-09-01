@@ -1,0 +1,87 @@
+//Language XML
+- <Project DefaultTargets="Build"
+xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+- <PropertyGroup>
+<Configuration Condition="'$(Configuration)' ==
+''">Debug</Configuration>
+<Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
+<ProductVersion>8.0.40607</ProductVersion>
+<SchemaVersion>2.0</SchemaVersion>
+<ProjectGuid>{300A6C53-31EC-4C5E-B0D3-
+31CFDD42F670</ProjectGuid>
+<OutputType>WinExe</OutputType>
+<RootNamespace>MySolutions.Demos</RootNamespace>
+<AssemblyName>MyControls Demo</AssemblyName>
+<WarningLevel>4</WarningLevel>
+</PropertyGroup>
+- <PropertyGroup Condition="'$(Configuration)|$(Platform)' ==
+'Debug|AnyCPU'">
+<DebugSymbols>true</DebugSymbols>
+<DebugType>full</DebugType>
+<Optimize>false</Optimize>
+<OutputPath>..\Debug\</OutputPath>
+<DefineConstants>DEBUG;TRACE</DefineConstants>
+</PropertyGroup>
+- <PropertyGroup Condition="'$(Configuration)|$(Platform)' ==
+'Release|AnyCPU'">
+<DebugSymbols>false</DebugSymbols>
+<Optimize>true</Optimize>
+<OutputPath>..\Release\</OutputPath>
+<DefineConstants>TRACE</DefineConstants>
+</PropertyGroup>
+- <ItemGroup>
+- <Reference Include="MyCommon, Version=1.0.1774.39607,
+Culture=neutral, processorArchitecture=MSIL">
+<HintPath>..\Release\MyCommon.dll</HintPath>
+<SpecificVersion>False</SpecificVersion>
+</Reference>
+<Reference Include="System" />
+<Reference Include="System.Data" />
+<Reference Include="System.Drawing" />
+<Reference Include="System.Windows.Forms" />
+<Reference Include="System.Xml" />
+</ItemGroup>
+- <ItemGroup>
+- <Compile Include="MyControls Demo\MyControls Demo Form.cs">
+<SubType>Form</SubType>
+</Compile>
+<Compile Include="MyControls Demo\MyControls Demo.cs" />
+- <EmbeddedResource Include="MyControls Demo\MyControls Demo
+Form.resx">
+6
+<DependentUpon>MyControls Demo Form.cs</DependentUpon>
+</EmbeddedResource>
+- <EmbeddedResource Include="MyControls
+Demo\Properties\Resources.resx">
+<Generator>ResXFileCodeGenerator</Generator>
+<LastGenOutput>Resources.cs</LastGenOutput>
+</EmbeddedResource>
+<EmbeddedResource Include="Resources.resx" />
+- <Compile Include="MyControls Demo\Properties\Resources.cs">
+<AutoGen>True</AutoGen>
+<DependentUpon>Resources.resx</DependentUpon>
+</Compile>
+- <None Include="MyControls Demo\Properties\Settings.settings">
+<Generator>SettingsSingleFileGenerator</Generator>
+<LastGenOutput>Settings.cs</LastGenOutput>
+</None>
+- <Compile Include="MyControls Demo\Properties\Settings.cs">
+<AutoGen>True</AutoGen>
+<DependentUpon>Settings.settings</DependentUpon>
+</Compile>
+<AppDesigner Include="MyControls Demo\Properties\" />
+</ItemGroup>
+- <ItemGroup>
+- <ProjectReference Include="MyControls Base\MyControls Base.csproj">
+<Project>{6DEB6AD7-0FFA-436A-82BE-6FE9B2F2E904}</Project>
+<Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+<Name>MyControls Base</Name>
+</ProjectReference>
+- <ProjectReference Include="MyControls Library.csproj">
+<Project>{F6F63E42-0B01-41D2-96D1-3A8AF03C78BE}</Project>
+<Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+<Name>MyControls Library</Name>
+</ProjectReference>
+</ItemGroup>
+<Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
+</Project>
