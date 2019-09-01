@@ -1,0 +1,404 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Data;
+using System.Text;
+using System.Windows.Forms;
+using System.Xml;
+using MySolutions.Frames;
+namespace MySolutions.UI.Controls {
+public class DiagramEditor : Panel {
+/// <summary>Required designer variable.</summary>
+private System.ComponentModel.IContainer components = null;
+/// <summary>Clean up any resources being used.</summary>
+protected override void Dispose (bool disposing) {
+if (disposing && (components != null)) {
+components.Dispose ();
+}
+base.Dispose (disposing);
+}
+#region Component Designer generated code
+/// <summary>
+/// Required method for Designer support - do not modify
+/// the contents of this method with the code editor.
+/// </summary>
+private void InitializeComponent () {
+//
+// UserControl2
+//
+this.Name = "UserControl2";
+this.Size = new System.Drawing.Size (362, 314);
+}
+#endregion
+protected ContextMenuStrip elementContextMenuStrip;
+public ContextMenuStrip ElementContextMenuStrip {
+get { return elementContextMenuStrip; }
+set { elementContextMenuStrip = value; }
+}
+protected ToolStripMenuItem elementsMenuItem;
+public ToolStripMenuItem ElementsMenuItem {
+get { return elementsMenuItem; }
+set {
+if (elementsMenuItem != null) {
+for (int i = elementsMenuItem.DropDownItems.
+Count - 1; i >= 0; i--) {
+if (elementsMenuItem.DropDownItems [i].Tag 
+55
+== null)
+continue;
+if (elementsMenuItem.DropDownItems [i].Tag
+is ConceptControl) {
+elementsMenuItem.
+DropDownItems.RemoveAt (i);
+}
+}
+}
+elementsMenuItem = value;
+foreach (Control Element in Controls) {
+if (Element is ConceptControl) {
+ addElementsMenuEntry (Element as ConceptControl);
+}
+}
+}
+}
+protected void addElementsMenuEntry (ConceptControl Element) {
+if (elementsMenuItem == null)
+return;
+if (Element == null)
+return;
+ToolStripMenuItem tsmi = new ToolStripMenuItem ();
+tsmi.Tag = Element;
+tsmi.Text = (Element as ConceptControl).ElementName;
+tsmi.Click += new EventHandler (elementsMenuItem_Click);
+elementsMenuItem.DropDownItems.Add (tsmi);
+}
+protected void removeElementsMenuEntry (ConceptControl Element) {
+if (elementsMenuItem == null)
+return;
+for (int i = elementsMenuItem.DropDownItems.Count - 1;
+i >= 0; i--)
+if (elementsMenuItem.DropDownItems [i].Tag == Element) {
+elementsMenuItem.DropDownItems.RemoveAt (i);
+break;
+}
+}
+void Element_ElementNameChanged (object sender, EventArgs e) {
+removeElementsMenuEntry (sender as ConceptControl);
+addElementsMenuEntry (sender as ConceptControl);
+}
+public Document Doc;
+public DiagramEditor (Document document, Diagram diagram) {
+}
+public DiagramEditor () {
+InitializeComponent ();
+elements = new ArrayList ();
+relations = new ArrayList ();
+this.Click += new EventHandler (click);
+this.MouseDown += new MouseEventHandler (mouseDown);
+this.MouseMove += new MouseEventHandler (mouseMove);
+this.MouseUp += new MouseEventHandler (mouseUp);
+}
+protected ArrayList elements;
+56
+protected ArrayList relations;
+public int ElementsCount { get { return elements.Count; } }
+public ConceptControl Element (int index) {
+if ((index >= 0) && (index < elements.Count))
+return elements [index] as ConceptControl;
+else
+throw new ArgumentOutOfRangeException ("Argument out
+of range: index.");
+}
+public int RelationsCount () { return relations.Count; }
+public RelationControl Relation (int index) {
+if ((index >= 0) && (index < relations.Count))
+return relations [index] as RelationControl;
+else
+throw new ArgumentOutOfRangeException ("Argument out
+of range: index");
+}
+public void Delete (ConceptControl Element) {
+elements.Remove (Element);
+Controls.Remove (Element);
+removeElementsMenuEntry (Element);
+}
+public void Delete (string ElementName) {
+foreach (Control Element in Controls) {
+if ((Element is ConceptControl) &&
+((Element as ConceptControl).ElementName ==
+ElementName)) {
+elements.Remove (Element);
+Controls.Remove (Element);
+removeElementsMenuEntry (Element
+as ConceptControl);
+return;
+}
+}
+}
+public void Delete (int ElementID) {
+foreach (Control Element in Controls) {
+if ((Element is ConceptControl) &&
+((Element as ConceptControl).ElementID ==
+ElementID)) {
+elements.Remove (Element);
+Controls.Remove (Element);
+removeElementsMenuEntry (Element
+as ConceptControl);
+return;
+}
+}
+}
+public ConceptControl Get (string ElementName) {
+foreach (Control Element in Controls) {
+if (Element is ConceptControl)
+if ((Element as ConceptControl).ElementName ==
+ElementName) {
+return Element as ConceptControl;
+}
+}
+57
+throw new IndexOutOfRangeException
+("Element not found in collection.");
+}
+public ConceptControl Get (int ElementID) {
+foreach (Control Element in Controls) {
+if (Element is ConceptControl)
+if ((Element as ConceptControl).ElementID ==
+ElementID) {
+return Element as ConceptControl;
+}
+}
+throw new IndexOutOfRangeException
+("Element not found in collection.");
+}
+protected ConceptControl selectedElement;
+public ConceptControl SelectedElement {
+get { return selectedElement; }
+}
+public void SelectNone () {
+if (selectedElement != null) {
+selectedElement.Select (false);
+selectedElement = null;
+OnElementSelected ();
+}
+}
+public void SelectElement (ConceptControl Element) {
+if (Element != selectedElement)
+Element.Select ();
+}
+public void SelectElement (string ElementName) {
+foreach (Control control in Controls) {
+if ((control is ConceptControl) &&
+((control as ConceptControl).ElementName ==
+ElementName)) {
+SelectElement (control as
+ConceptControl);
+return;
+}
+}
+throw new ArgumentOutOfRangeException
+("Argument out of range: element name.");
+}
+public void SelectElement (int ElementID) {
+foreach (Control control in Controls) {
+if ((control is ConceptControl) &&
+((control as ConceptControl).ElementID ==
+ElementID)) {
+SelectElement (control as
+ConceptControl);
+return;
+}
+}
+throw new ArgumentOutOfRangeException
+("Argument out of range: element id.");
+}
+protected event EventHandler elementSelected;
+58
+public event EventHandler ElementSelected {
+add {
+elementSelected += value;
+}
+remove {
+elementSelected -= value;
+}
+}
+protected void OnElementSelected () {
+if (elementSelected != null)
+elementSelected (this, EventArgs.Empty);
+}
+protected void Element_Selected (object sender, EventArgs e) {
+selectedElement = (sender as ConceptControl);
+foreach (Control Element in Controls) {
+if (Element is ConceptControl)
+if (Element != sender)
+(Element as ConceptControl).Select (false);
+}
+OnElementSelected ();
+}
+void click (object sender, EventArgs e) {
+SelectNone ();
+}
+protected void setNormal () {
+newElement = null;
+newRelation = null;
+allowOperate (true);
+}
+protected void setElement () {
+newElement = new ConceptControl ();
+newElement.ContextMenuStrip = elementContextMenuStrip;
+newElement.Selected += new EventHandler (Element_Selected);
+newElement.Click += new EventHandler (Element_Click);
+newElement.Move += new EventHandler (Element_Move);
+newElement.ElementNameChanged += new EventHandler
+(Element_ElementNameChanged);
+newElement.BackColor = Color.WhiteSmoke;
+newRelation = null;
+allowOperate (false);
+}
+protected void setRelation () {
+newElement = null;
+newRelation = new RelationControl ();
+allowOperate (false);
+}
+protected void allowOperate (bool value) {
+foreach (Control Element in Controls) {
+if (Element is MyControl)
+(Element as MyControl).AllowOperate = value;
+}
+}
+public enum Modes {
+Select,
+Element,
+59
+Relation
+};
+protected Modes mode = Modes.Select;
+public Modes Mode {
+get { return mode; }
+set {
+if (mode != value)
+setMode (value);
+}
+}
+protected void setMode (Modes value) {
+switch (value) {
+case Modes.Select:
+mode = Modes.Select;
+setNormal ();
+break;
+case Modes.Element:
+mode = Modes.Element;
+setElement ();
+break;
+case Modes.Relation:
+mode = Modes.Relation;
+setRelation ();
+break;
+}
+OnModeChanged (new EventArgs ());
+}
+protected event EventHandler modeChanged;
+public event EventHandler ModeChanged {
+add { modeChanged += value; }
+remove { modeChanged -= value; }
+}
+protected void OnModeChanged (EventArgs e) {
+if (modeChanged != null)
+modeChanged (this, e);
+}
+protected RelationControl newRelation;
+protected ConceptControl newElement;
+void Element_MouseDown (object sender, MouseEventArgs e) { }
+void Element_MouseUp (object sender, MouseEventArgs e) { }
+void Element_Click (object sender, EventArgs e) {
+if (mode == Modes.Select)
+return;
+if (mode == Modes.Relation) {
+if (newRelation.Originator == null)
+newRelation.Originator =
+(sender as ConceptControl);
+else {
+newRelation.Target = (sender as ConceptControl);
+Controls.Add (newRelation);
+newRelation = null;
+Mode = Modes.Select;
+}
+return;
+60
+}
+}
+void Element_Move (object sender, EventArgs e) {
+OnElementMove (e);
+}
+protected event EventHandler elementMove;
+public event EventHandler ElementMove {
+add { elementMove += value; }
+remove { elementMove -= value; }
+}
+protected void OnElementMove (EventArgs e) {
+if (elementMove != null) {
+elementMove (this, e);
+}
+}
+protected event EventHandler elementResize;
+public event EventHandler ElementResize {
+add { elementResize += value; }
+remove { elementResize -= value; }
+}
+protected void OnElementResize (EventArgs e) {
+if (elementResize != null)
+elementResize (this, e);
+}
+void mouseDown (object sender, MouseEventArgs e) {
+if (mode == Modes.Element) {
+newElement.Location = new Point (e.X, e.Y);
+elements.Add (newElement);
+Controls.Add (newElement);
+addElementsMenuEntry (newElement);
+return;
+}
+}
+void mouseMove (object sender, MouseEventArgs e) {
+if (mode == Modes.Element) {
+if (e.X > newElement.Left) {
+newElement.Width = e.X - newElement.Left;
+} else {
+newElement.Width = newElement.Left - e.X;
+newElement.Left = e.X;
+}
+if (e.Y > newElement.Top) {
+newElement.Height = e.Y - newElement.Top;
+} else {
+newElement.Height = newElement.Top - e.Y;
+newElement.Top = e.Y;
+}
+newElement.Invalidate ();
+return;
+}
+}
+void mouseUp (object sender, MouseEventArgs e) {
+if (mode == Modes.Element) {
+Mode = Modes.Select;
+}
+}
+void elementsMenuItem_Click (object sender, EventArgs e) {
+ToolStripMenuItem tsmi = (sender as ToolStripMenuItem);
+if (tsmi == null)
+61
+return;
+if (tsmi.Tag == null)
+return;
+SelectElement (tsmi.Tag as ConceptControl);
+}
+private void SelectElements (ConceptControl Element) {
+foreach (Control cElement in Controls) {
+if (cElement is ConceptControl) {
+(cElement as ConceptControl).Select (cElement ==
+Element);
+}
+}
+}
+}
+}
