@@ -1,0 +1,74 @@
+package lab2;
+import java.util.Scanner;
+import java.util.Random;
+public class Matrix {
+    public static void main(String args[]) {
+        boolean Return = false;
+        do {
+            System.out.println("Matrix build option:\nManual\nAuto");
+            Scanner input = new Scanner(System.in);
+            String choice = input.nextLine();
+            switch (choice) {
+                case "Manual":
+                    Scanner InputNumber = new Scanner(System.in);
+                    System.out.println("Enter The Number Of Matrix Rows");
+                    int matrixRow = InputNumber.nextInt();
+                    System.out.println("Enter The Number Of Matrix Columns");
+                    int matrixCol = InputNumber.nextInt();
+                    int[][] createMatrix = new int[matrixRow][matrixCol];
+                    enterMatrixData(InputNumber, createMatrix, matrixRow, matrixCol);
+                    printMatrix(createMatrix, matrixRow, matrixCol);
+                    break;
+                case "Auto":
+                    Random arbitrary = new Random();
+                    int matrixRowAUTO = arbitrary.nextInt(5);
+                    int matrixColAUTO = arbitrary.nextInt(5);
+                    int[][] createMatrixAUTO = new int[matrixRowAUTO][matrixColAUTO];
+                    AutoMatrixData(arbitrary, createMatrixAUTO, matrixRowAUTO, matrixColAUTO);
+                    printMatrixAuto(createMatrixAUTO, matrixRowAUTO, matrixColAUTO);
+                    break;
+                default:
+                    System.out.println("Invalid choice");
+                    Return = true;
+                    break;
+            }
+        } while (Return == true);
+    }
+    public static void enterMatrixData(Scanner MatrixNumberInput, int[][] CreateMatrix, int matrixRow, int matrixCol) {
+        System.out.println("Enter Matrix Data");
+        for (int i = 0; i < matrixRow; i++) {
+            for (int j = 0; j < matrixCol; j++) {
+                CreateMatrix[i][j] = MatrixNumberInput.nextInt();
+            }
+        }
+    }
+    public static void printMatrix(int[][] CreateMatrix, int matrixRow, int matrixCol){
+        System.out.println("Your Matrix is : ");
+        for (int i = 0; i < matrixRow; i++)
+        {
+            for (int j = 0; j < matrixCol; j++)
+            {
+                System.out.print(CreateMatrix[i][j]+"\t");
+            }
+            System.out.println();
+        }
+    }
+    public static void AutoMatrixData(Random arbitrary, int[][] createMatrixAUTO, int matrixRowAUTO, int matrixColAUTO) {
+        for (int i = 0; i < matrixRowAUTO; i++) {
+            for (int j = 0; j < matrixColAUTO; j++) {
+                createMatrixAUTO[i][j] = arbitrary.nextInt();
+            }
+        }
+    }
+    public static void printMatrixAuto(int[][] createMatrixAUTO, int matrixRowAUTO, int matrixColAUTO) {
+        System.out.println("Your AUTO Matrix is : ");
+        for (int i = 0; i < matrixRowAUTO; i++)
+        {
+            for (int j = 0; j < matrixColAUTO; j++)
+            {
+                System.out.print(createMatrixAUTO[i][j]+"\t");
+            }
+            System.out.println();
+        }
+    }
+}
